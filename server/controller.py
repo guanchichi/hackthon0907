@@ -249,7 +249,7 @@ def update_isEntryToOne(mysql):
         location = req_data.get("location")
         date = req_data.get("date")
         month = date[0:2]
-        day = date[2:2]
+        day = date[2:4]
         print(month)
         print(day)
         date = datetime.date(2024, int(month), int(day))
