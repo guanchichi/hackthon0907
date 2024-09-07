@@ -1,4 +1,13 @@
 from flask_mysqldb import MySQL
+from PIL import Image
+import base64
+from io import BytesIO
+
+def encodeimage(imagepath):
+    with Image.open(imagepath) as image:
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        return base64.b64encode(buffered.getvalue()).decode()
 
 def init_db(app):
     mysql = MySQL()
@@ -12,7 +21,7 @@ def get_user_history(mysql, user_id):
         SELECT 
             c.Location AS location, 
             t.StartTime AS time, 
-            c.price AS price
+            c.price AS price,
             t.IsEntry AS is_entry
         FROM 
             booking b
@@ -68,7 +77,8 @@ def get_companies_by_area(mysql, area):
                 Contact AS contact,
                 Phone AS phone,
                 IsOpen AS isOpen,
-                Area AS area
+                Area AS area,
+                ImagePath AS imagepath
             FROM 
                 company;
         """
@@ -82,7 +92,8 @@ def get_companies_by_area(mysql, area):
                 Contact AS contact,
                 Phone AS phone,
                 IsOpen AS isOpen,
-                Area AS area
+                Area AS area,
+                ImagePath AS imagepath
             FROM 
                 company
             WHERE 
@@ -115,7 +126,8 @@ def get_companies_by_area(mysql, area):
                 'contact': record[4],
                 'phone': record[5],
                 'isOpen': record[6],
-                'area': record[7]
+                'area': record[7],
+                'image': encodeimage(record[8])
             }
             for record in company_records
         ]
