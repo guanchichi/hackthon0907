@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_mysqldb import MySQL
+from flask_cors import CORS
 from server.controller import get_history
 from server.controller import get_companies
 from server.controller import check_availability
@@ -25,6 +26,7 @@ def test_db_connection(app, mysql):
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # MySQL database configuration
 # MySQL database configuration
