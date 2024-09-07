@@ -8,8 +8,19 @@ from server.model import get_address_by_location
 from server.model import get_user_details
 from server.model import update_isEntryToOne_model
 def extract_portion(input_string):
+    dt_string = input_string.strftime('%Y-%m-%d %H:%M')
     # 找到第一個冒號的位置
-    colon_index = input_string.find(':')
+    colon_index = str(dt_string).find(':')
+
+    start = colon_index - 2
+    end = start + 3  # 包括冒號和後面兩個字符
+
+    output = dt_string[start:end + 2]
+    return output
+
+def extract_portion_str(input_string):
+    # 找到第一個冒號的位置
+    colon_index = str(input_string).find(':')
 
     start = colon_index - 2
     end = start + 3  # 包括冒號和後面兩個字符
@@ -72,6 +83,7 @@ def check_availability(mysql):
         req_data = request.get_json()
         location = req_data.get('location')
         date = req_data.get('date')
+        print(location, date)
         
         # Validate request parameters
         if not location or not date:
@@ -79,6 +91,7 @@ def check_availability(mysql):
         
         # Get available times from model
         available_times = get_available_times(mysql, location, date)
+        # print(available_times)
         
         if available_times is None or len(available_times) == 0:
             # No available times found for the location and date
@@ -126,7 +139,7 @@ def showPeopleInfo(mysql):
         response = {
             "status": "success",
             "date": booking_details['date'],
-            "time": extract_portion(booking_details['start_time']),
+            "time": extract_portion_str(booking_details['start_time']),
             "people": {
                 "name": booking_details['name'],
                 "phone": booking_details['phone'],
@@ -180,30 +193,36 @@ def book_time_slot(mysql):
         location = req_data.get('location')
         date = req_data.get('date')
         start_time = req_data.get('start_time')
+        print(start_time)
+        print(type(start_time))
         people_num = req_data.get('people_num')
 
         if not user_id or not location or not date or not start_time or not people_num:
+            print("Invalid parameters")
             return jsonify({"status": "error", "message": "Invalid parameters"}), 200
         
         address = get_address_by_location(mysql, location)
         if not address:
+            print("查無資料")
             return jsonify({"status": "error", "message": "查無資料"}), 200
 
         # 更新 time 表，插入 booking 表
         booking_details = update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num)
         if not booking_details:
+            print("查無資料2")
             return jsonify({"status": "error", "message": "查無資料"}), 200
 
         # get user詳細資料
         user_details = get_user_details(mysql, user_id)
         if not user_details:
+            print("查無資料3")
             return jsonify({"status": "error", "message": "查無資料"}), 200
 
         response = {
             "status": "success",
             "location": location,
             "date": date,
-            "start_time": extract_portion(start_time),
+            "start_time": extract_portion_str(start_time),
             "end_time": extract_portion(booking_details.get('end_time')),
             "people_num": people_num,
             "price": booking_details.get('price'),
@@ -214,6 +233,7 @@ def book_time_slot(mysql):
                 "mail": user_details.get('mail'),
             }
         }
+        print(response)
 
         return jsonify(response), 200
 

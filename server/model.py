@@ -3,13 +3,14 @@ from PIL import Image
 import base64
 from io import BytesIO
 def extract_portion(input_string):
+    dt_string = input_string.strftime('%Y-%m-%d %H:%M')
     # 找到第一個冒號的位置
-    colon_index = input_string.find(':')
+    colon_index = str(dt_string).find(':')
 
     start = colon_index - 2
     end = start + 3  # 包括冒號和後面兩個字符
 
-    output = input_string[start:end + 2]
+    output = dt_string[start:end + 2]
     return output
 
 def encodeimage(imagepath):
@@ -156,14 +157,14 @@ def get_available_times(mysql, location, date):
             t.EndTime, 
             t.IsBooked, 
             c.Location, 
-            DATE(t.StartTime) AS Date
+            DATE(t.Date) AS Date
         FROM 
             time t
         JOIN 
             company c ON t.Address = c.Address
         WHERE 
             c.Location = %s
-            AND TIME(t.StartTime) = %s;
+            AND DATE(t.Date) = %s;
     """
     
     # Get database connection and execute query
@@ -253,6 +254,11 @@ def get_peopleNum(mysql, date, time, user_id):
     
 
 def update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num):
+    print(user_id)
+    print(address)
+    print(date)
+    print(start_time)
+    print(people_num)
     update_time_query = f"""
         UPDATE time 
         SET IsBooked = 1, UserID = '{user_id}'
@@ -260,7 +266,8 @@ def update_time_and_insert_booking(mysql, user_id, address, date, start_time, pe
     """
     insert_booking_query = """
         INSERT INTO booking (ID, Address, PeopleNum)
-        VALUES (%s, %s, %s);
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE ID = ID;
     """
     get_booking_details_query = """
         SELECT EndTime, price
