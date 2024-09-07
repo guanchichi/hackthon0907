@@ -345,19 +345,19 @@ def get_user_details(mysql, user_id):
     
 
 
-def update_isEntryToOne_model(mysql, location):
+def update_isEntryToOne_model(mysql, location, date):
     address = get_address_by_location(mysql, location)
     query = """
         UPDATE time 
         JOIN company ON time.Address = company.Address
         SET time.IsEntry = 1
-        WHERE company.Address = %s AND time.UserID IS NOT NULL;
+        WHERE company.Address = %s AND time.UserID IS NOT NULL AND time.date = %s;
     """
 
     try:
         cur = mysql.connection.cursor()
         # update time table
-        cur.execute(query, (address,))  # 確保提供正確的參數
+        cur.execute(query, (address, date))  # 確保提供正確的參數
         mysql.connection.commit()
         cur.close()
 

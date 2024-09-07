@@ -1,4 +1,5 @@
 from flask import request, jsonify
+import datetime
 from server.model import get_user_history
 from server.model import get_companies_by_area
 from server.model import get_available_times
@@ -246,10 +247,20 @@ def update_isEntryToOne(mysql):
     try:
         req_data = request.get_json()
         location = req_data.get("location")
+        date = req_data.get("date")
+        month = date[0:2]
+        day = date[2:2]
+        print(month)
+        print(day)
+        date = datetime.date(2024, int(month), int(day))
+        print(date)
+
+        if date is None:
+            return jsonify({"status": "error", "message": "查無date"}), 200
         if location == "" or location is None:
             return jsonify({"status": "error", "message": "查無location"}), 200
 
-        update_isEntryToOne_model(mysql=mysql, location=location)
+        update_isEntryToOne_model(mysql=mysql, location=location, date=date)
 
         response = {
             "status": "success",
