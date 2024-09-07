@@ -330,17 +330,17 @@ def get_user_details(mysql, user_id):
 
 
 def update_isEntryToOne_model(mysql, location):
+    address = get_address_by_location(location)
     query = f"""
         UPDATE time 
         JOIN company ON time.Address = company.Address
         SET time.IsEntry = 1
-        WHERE company.Location = '{location}';
+        WHERE company.Address = '{address}';
 
     """
 
     try:
         cur = mysql.connection.cursor()
-        
         # update time table
         cur.execute(query, (location))
         mysql.connection.commit()
