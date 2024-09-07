@@ -3,6 +3,7 @@ from server.model import get_user_history
 from server.model import get_companies_by_area
 from server.model import get_available_times
 from server.model import get_booking_details
+from server.model import get_peopleNum
 
 def get_history(mysql):
     try:
@@ -127,4 +128,36 @@ def showPeopleInfo(mysql):
     except Exception as e:
         # Handle any other exceptions
         print(f"Error in showPeopleInfo: {e}")
+        return jsonify({"status": "error", "message": "Server error"}), 200
+
+# 顯示人數
+def show_pay_info(mysql):
+    try:
+        req_data = request.get_json()
+        date = req_data.get('date')
+        time = req_data.get('time')
+        people_details = req_data.get('people', {})
+        name = people_details.get('name')
+        phone = people_details.get('phone')
+        ID = people_details.get('ID')
+        mail = people_details.get('mail')
+        people_num = people_details.get('people_num')
+        
+        if not date or not time or not people_num:
+            return jsonify({"status": "error", "message": "Invalid parameters"}), 200
+        
+        booking_details = get_booking_details(mysql, date, time, ID)
+        
+        if booking_details is None:
+            return jsonify({"status": "error", "message": "查無資料"}), 200
+        
+        response = {
+            "status": "success",
+            "people_num": booking_details.get('people_num', 0)
+        }
+        
+        return jsonify(response), 200
+    
+    except Exception as e:
+        print(f"Error in show_pay_info: {e}")
         return jsonify({"status": "error", "message": "Server error"}), 200

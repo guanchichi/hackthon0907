@@ -191,10 +191,9 @@ def get_booking_details(mysql, location, date, start_time):
     
     try:
         cur = mysql.connection.cursor()
-        cur.execute(query, (location, date, start_time))
+        cur.execute(query)
         booking_details = cur.fetchone()
         cur.close()
-
         if booking_details:
             return {
                 'name': booking_details[0],
@@ -209,4 +208,36 @@ def get_booking_details(mysql, location, date, start_time):
             return None
     except Exception as e:
         print(f"Error fetching BookingPeopleInfo: {e}")
+        return None
+
+
+def get_peopleNum(mysql, date, time, user_id):
+    query = """
+        SELECT 
+            b.people_num
+        FROM 
+            booking b
+        JOIN 
+            time t ON b.Address = t.Address
+        JOIN 
+            company c ON b.Address = c.Address
+        WHERE 
+            t.Date = %s AND t.StartTime = %s AND b.ID = %s;
+    """
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(query, (date, time, user_id))
+        booking_record = cur.fetchone()
+        cur.close()
+        
+        if booking_record is None:
+            return None
+        
+        return {
+            'people_num': booking_record[0]
+        }
+    
+    except Exception as e:
+        print(f"Error fetching booking details: {e}")
         return None
