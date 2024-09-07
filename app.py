@@ -65,7 +65,7 @@ def show_people_info():
     return showPeopleInfo(mysql)
 
 @app.route('/show_pay_info', methods=['POST'])
-def show_pay_info():
+def Show_Pay_Info():
     return show_pay_info(mysql)
 
 if __name__ == '__main__':

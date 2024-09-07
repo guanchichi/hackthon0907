@@ -3,7 +3,6 @@ from server.model import get_user_history
 from server.model import get_companies_by_area
 from server.model import get_available_times
 from server.model import get_booking_details
-from server.model import get_peopleNum
 
 def get_history(mysql):
     try:
@@ -146,14 +145,12 @@ def show_pay_info(mysql):
         if not date or not time or not people_num:
             return jsonify({"status": "error", "message": "Invalid parameters"}), 200
         
-        booking_details = get_booking_details(mysql, date, time, ID)
-        
-        if booking_details is None:
+        if people_details is None:
             return jsonify({"status": "error", "message": "查無資料"}), 200
         
         response = {
             "status": "success",
-            "people_num": booking_details.get('people_num', 0)
+            "people_num": people_num
         }
         
         return jsonify(response), 200

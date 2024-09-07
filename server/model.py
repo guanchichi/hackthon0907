@@ -210,7 +210,7 @@ def get_booking_details(mysql, location, date, start_time):
         print(f"Error fetching BookingPeopleInfo: {e}")
         return None
 
-
+############################################################
 def get_peopleNum(mysql, date, time, user_id):
     query = """
         SELECT 
