@@ -6,6 +6,7 @@ from server.model import get_booking_details
 from server.model import update_time_and_insert_booking
 from server.model import get_address_by_location
 from server.model import get_user_details
+from server.model import update_isEntryToOne_model
 
 def get_history(mysql):
     try:
@@ -203,6 +204,26 @@ def book_time_slot(mysql):
                 "ID": user_id,
                 "mail": user_details.get('mail'),
             }
+        }
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        print(f"Error in book_time_slot: {e}")
+        return jsonify({"status": "error", "message": "Server error"}), 200
+    
+
+def update_isEntryToOne(mysql):
+    try:
+        req_data = request.get_json()
+        location = req_data.get("location")
+        if location == "" or location is None:
+            return jsonify({"status": "error", "message": "查無location"}), 200
+
+        update_isEntryToOne_model(mysql=mysql, location=location)
+
+        response = {
+            "status": "success",
         }
 
         return jsonify(response), 200

@@ -7,6 +7,7 @@ from server.controller import check_availability
 from server.controller import showPeopleInfo
 from server.controller import show_pay_info
 from server.controller import book_time_slot
+from server.controller import update_isEntryToOne
 
 def init_db(app):
     mysql = MySQL(app)
@@ -72,6 +73,10 @@ def Show_Pay_Info():
 @app.route('/show_success_info', methods=['POST'])
 def Show_Success_Info():
     return book_time_slot(mysql)
+
+@app.route('set_isEntry', methods=['POST'])
+def setIsEntry():
+    return update_isEntryToOne(mysql)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)

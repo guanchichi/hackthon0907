@@ -244,10 +244,10 @@ def get_peopleNum(mysql, date, time, user_id):
     
 
 def update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num):
-    update_time_query = """
+    update_time_query = f"""
         UPDATE time 
-        SET IsBooked = 1, UserID = %s
-        WHERE Address = %s AND Date = %s AND StartTime = %s;
+        SET IsBooked = 1, UserID = '{user_id}'
+        WHERE Address = '{address}' AND Date = '{date}' AND StartTime = '{start_time}';
     """
     insert_booking_query = """
         INSERT INTO booking (ID, Address, PeopleNum)
@@ -263,10 +263,12 @@ def update_time_and_insert_booking(mysql, user_id, address, date, start_time, pe
         cur = mysql.connection.cursor()
         
         # update time table
-        cur.execute(update_time_query, (user_id, address, date, start_time))
+        cur.execute(update_time_query)
+        mysql.connection.commit()
         
         # insert booking table
         cur.execute(insert_booking_query, (user_id, address, people_num))
+        mysql.connection.commit()
         
         # get booking table
         cur.execute(get_booking_details_query, (address, start_time))
@@ -324,3 +326,25 @@ def get_user_details(mysql, user_id):
     except Exception as e:
         print(f"Error fetching user details: {e}")
         return None
+    
+
+
+def update_isEntryToOne_model(mysql, location):
+    query = f"""
+        UPDATE time 
+        JOIN company ON time.Address = company.Address
+        SET time.IsEntry = 1
+        WHERE company.Location = '{location}';
+
+    """
+
+    try:
+        cur = mysql.connection.cursor()
+        
+        # update time table
+        cur.execute(query, (location))
+        mysql.connection.commit()
+        cur.close()
+        
+    except Exception as e:
+        print(f"Error updating: {e}")
