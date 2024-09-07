@@ -38,7 +38,7 @@ def get_companies(mysql):
         companies = get_companies_by_area(mysql, area)
         
         # If no companies are found, return an error
-        if companies is None:
+        if companies is None or companies == []:
             return jsonify({"status": "error", "message": "查無資料"}), 404
         
         # Return success result with companies data
