@@ -246,11 +246,11 @@ def get_peopleNum(mysql, date, time, user_id):
 def update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num):
     update_time_query = """
         UPDATE time 
-        SET is_booked = 1, userID = %s
-        WHERE Address = %s AND DATE = %s AND StartTime = %s;
+        SET IsBooked = 1, UserID = %s
+        WHERE Address = %s AND Date = %s AND StartTime = %s;
     """
     insert_booking_query = """
-        INSERT INTO booking (ID, Address, people_num)
+        INSERT INTO booking (ID, Address, PeopleNum)
         VALUES (%s, %s, %s);
     """
     get_booking_details_query = """

@@ -70,7 +70,7 @@ def Show_Pay_Info():
     return show_pay_info(mysql)
 
 @app.route('/show_success_info', methods=['POST'])
-def Show_Pay_Info():
+def Show_Success_Info():
     return book_time_slot(mysql)
 
 if __name__ == '__main__':
