@@ -3,6 +3,9 @@ from server.model import get_user_history
 from server.model import get_companies_by_area
 from server.model import get_available_times
 from server.model import get_booking_details
+from server.model import update_time_and_insert_booking
+from server.model import get_address_by_location
+from server.model import get_user_details
 
 def get_history(mysql):
     try:
@@ -157,4 +160,53 @@ def show_pay_info(mysql):
     
     except Exception as e:
         print(f"Error in show_pay_info: {e}")
+        return jsonify({"status": "error", "message": "Server error"}), 200
+    
+
+def book_time_slot(mysql):
+    try:
+        req_data = request.get_json()
+        user_id = req_data.get('ID')
+        location = req_data.get('location')
+        date = req_data.get('date')
+        start_time = req_data.get('start_time')
+        people_num = req_data.get('people_num')
+
+        if not user_id or not location or not date or not start_time or not people_num:
+            return jsonify({"status": "error", "message": "Invalid parameters"}), 200
+        
+        address = get_address_by_location(mysql, location)
+        if not address:
+            return jsonify({"status": "error", "message": "查無資料"}), 200
+
+        # 更新 time 表，插入 booking 表
+        booking_details = update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num)
+        if not booking_details:
+            return jsonify({"status": "error", "message": "查無資料"}), 200
+
+        # get user詳細資料
+        user_details = get_user_details(mysql, user_id)
+        if not user_details:
+            return jsonify({"status": "error", "message": "查無資料"}), 200
+
+        response = {
+            "status": "success",
+            "location": location,
+            "date": date,
+            "start_time": start_time,
+            "end_time": booking_details.get('end_time'),
+            "people_num": people_num,
+            "price": booking_details.get('price'),
+            "people": {
+                "name": user_details.get('name'),
+                "phone": user_details.get('phone'),
+                "ID": user_id,
+                "mail": user_details.get('mail'),
+            }
+        }
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        print(f"Error in book_time_slot: {e}")
         return jsonify({"status": "error", "message": "Server error"}), 200

@@ -6,6 +6,7 @@ from server.controller import get_companies
 from server.controller import check_availability
 from server.controller import showPeopleInfo
 from server.controller import show_pay_info
+from server.controller import book_time_slot
 
 def init_db(app):
     mysql = MySQL(app)
@@ -67,6 +68,10 @@ def show_people_info():
 @app.route('/show_pay_info', methods=['POST'])
 def Show_Pay_Info():
     return show_pay_info(mysql)
+
+@app.route('/show_success_info', methods=['POST'])
+def Show_Pay_Info():
+    return book_time_slot(mysql)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)

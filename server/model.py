@@ -241,3 +241,86 @@ def get_peopleNum(mysql, date, time, user_id):
     except Exception as e:
         print(f"Error fetching booking details: {e}")
         return None
+    
+
+def update_time_and_insert_booking(mysql, user_id, address, date, start_time, people_num):
+    update_time_query = """
+        UPDATE time 
+        SET is_booked = 1, userID = %s
+        WHERE Address = %s AND DATE = %s AND StartTime = %s;
+    """
+    insert_booking_query = """
+        INSERT INTO booking (ID, Address, people_num)
+        VALUES (%s, %s, %s);
+    """
+    get_booking_details_query = """
+        SELECT EndTime, price
+        FROM time t
+        JOIN company c ON t.Address = c.Address
+        WHERE t.Address = %s AND t.StartTime = %s;
+    """
+    try:
+        cur = mysql.connection.cursor()
+        
+        # update time table
+        cur.execute(update_time_query, (user_id, address, date, start_time))
+        
+        # insert booking table
+        cur.execute(insert_booking_query, (user_id, address, people_num))
+        
+        # get booking table
+        cur.execute(get_booking_details_query, (address, start_time))
+        booking_details = cur.fetchone()
+        cur.close()
+        
+        if booking_details:
+            return {
+                "end_time": booking_details[0],
+                "price": booking_details[1]
+            }
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error updating time and inserting booking: {e}")
+        return None
+
+def get_address_by_location(mysql, location):
+    query = """
+        SELECT Address 
+        FROM company 
+        WHERE Location = %s;
+    """
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(query, (location,))
+        address = cur.fetchone()
+        cur.close()
+        return address[0] if address else None
+    except Exception as e:
+        print(f"Error fetching address: {e}")
+        return None
+    
+def get_user_details(mysql, user_id):
+    query = """
+        SELECT Name, Phone, Mail
+        FROM user
+        WHERE ID = %s;
+    """
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(query, (user_id,))
+        user_details = cur.fetchone()
+        cur.close()
+        
+        if user_details:
+            return {
+                "name": user_details[0],
+                "phone": user_details[1],
+                "mail": user_details[2]
+            }
+        return None
+
+    except Exception as e:
+        print(f"Error fetching user details: {e}")
+        return None
