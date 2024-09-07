@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from server.controller import get_history
 from server.controller import get_companies
 from server.controller import check_availability
+from server.controller import showPeopleInfo
 
 def init_db(app):
     mysql = MySQL(app)
@@ -26,7 +27,9 @@ def test_db_connection(app, mysql):
 app = Flask(__name__)
 
 # MySQL database configuration
-app.config['MYSQL_HOST'] = '127.0.0.1'
+# MySQL database configuration
+app.config['MYSQL_HOST'] = '0.tcp.jp.ngrok.io'  # Ngrok host
+app.config['MYSQL_PORT'] = 10459  # Ngrok port
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'chichi77'
 app.config['MYSQL_DB'] = 'hackpussython'
@@ -54,5 +57,9 @@ def companies():
 def check_availability_route():
     return check_availability(mysql)
 
+@app.route('/show_people_info', methods=["POST"])
+def show_people_info():
+    return showPeopleInfo(mysql)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)

@@ -172,3 +172,40 @@ def get_available_times(mysql, location, date):
         print(f"Error fetching available times: {e}")
         return None
 
+def get_booking_details(mysql, location, date, start_time):
+    query = """
+        SELECT 
+            u.Name, u.Phone, u.ID, u.Mail, t.StartTime, t.Date, c.Location
+        FROM 
+            booking b
+        JOIN 
+            time t ON b.Address = t.Address
+        JOIN 
+            company c ON b.Address = c.Address
+        JOIN 
+            user u ON b.ID = u.ID
+        WHERE 
+            c.Location = %s AND DATE(t.Date) = %s AND t.StartTime = %s;
+    """
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(query, (location, date, start_time))
+        booking_details = cur.fetchone()
+        cur.close()
+
+        if booking_details:
+            return {
+                'name': booking_details[0],
+                'phone': booking_details[1],
+                'ID': booking_details[2],
+                'mail': booking_details[3],
+                'start_time': booking_details[4],
+                'date': booking_details[5],
+                'location': booking_details[6]
+            }
+        else:
+            return None
+    except Exception as e:
+        print(f"Error fetching BookingPeopleInfo: {e}")
+        return None
