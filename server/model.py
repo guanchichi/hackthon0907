@@ -13,6 +13,7 @@ def get_user_history(mysql, user_id):
             c.Location AS location, 
             t.StartTime AS time, 
             c.price AS price
+            t.IsEntry AS is_entry
         FROM 
             booking b
         JOIN 
@@ -42,7 +43,8 @@ def get_user_history(mysql, user_id):
             {
                 'location': record[0],
                 'time': record[1],
-                'price': record[2]
+                'price': record[2],
+                'isEntry': record[3]
             }
             for record in history_records
         ]
