@@ -74,7 +74,7 @@ def Show_Pay_Info():
 def Show_Success_Info():
     return book_time_slot(mysql)
 
-@app.route('set_isEntry', methods=['POST'])
+@app.route('/set_isEntry', methods=['POST'])
 def setIsEntry():
     return update_isEntryToOne(mysql)
 

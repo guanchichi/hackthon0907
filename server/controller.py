@@ -7,6 +7,15 @@ from server.model import update_time_and_insert_booking
 from server.model import get_address_by_location
 from server.model import get_user_details
 from server.model import update_isEntryToOne_model
+def extract_portion(input_string):
+    # 找到第一個冒號的位置
+    colon_index = input_string.find(':')
+
+    start = colon_index - 2
+    end = start + 3  # 包括冒號和後面兩個字符
+
+    output = input_string[start:end + 2]
+    return output
 
 def get_history(mysql):
     try:
@@ -83,8 +92,8 @@ def check_availability(mysql):
             "time": [
                 {
                     "IsBooked": time_record['IsBooked'],
-                    "StartTime": time_record['StartTime'],
-                    "EndTime": time_record['EndTime']
+                    "StartTime": extract_portion(time_record['StartTime']),
+                    "EndTime": extract_portion(time_record['EndTime'])
                 }
                 for time_record in available_times
             ]
@@ -117,7 +126,7 @@ def showPeopleInfo(mysql):
         response = {
             "status": "success",
             "date": booking_details['date'],
-            "time": booking_details['start_time'],
+            "time": extract_portion(booking_details['start_time']),
             "people": {
                 "name": booking_details['name'],
                 "phone": booking_details['phone'],
@@ -194,8 +203,8 @@ def book_time_slot(mysql):
             "status": "success",
             "location": location,
             "date": date,
-            "start_time": start_time,
-            "end_time": booking_details.get('end_time'),
+            "start_time": extract_portion(start_time),
+            "end_time": extract_portion(booking_details.get('end_time')),
             "people_num": people_num,
             "price": booking_details.get('price'),
             "people": {

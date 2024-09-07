@@ -2,6 +2,15 @@ from flask_mysqldb import MySQL
 from PIL import Image
 import base64
 from io import BytesIO
+def extract_portion(input_string):
+    # 找到第一個冒號的位置
+    colon_index = input_string.find(':')
+
+    start = colon_index - 2
+    end = start + 3  # 包括冒號和後面兩個字符
+
+    output = input_string[start:end + 2]
+    return output
 
 def encodeimage(imagepath):
     with Image.open(imagepath) as image:
@@ -154,7 +163,7 @@ def get_available_times(mysql, location, date):
             company c ON t.Address = c.Address
         WHERE 
             c.Location = %s
-            AND DATE(t.StartTime) = %s;
+            AND TIME(t.StartTime) = %s;
     """
     
     # Get database connection and execute query
@@ -330,21 +339,20 @@ def get_user_details(mysql, user_id):
 
 
 def update_isEntryToOne_model(mysql, location):
-    address = get_address_by_location(location)
-    query = f"""
+    address = get_address_by_location(mysql, location)
+    query = """
         UPDATE time 
         JOIN company ON time.Address = company.Address
         SET time.IsEntry = 1
-        WHERE company.Address = '{address}';
-
+        WHERE company.Address = %s AND time.UserID IS NOT NULL;
     """
 
     try:
         cur = mysql.connection.cursor()
         # update time table
-        cur.execute(query, (location))
+        cur.execute(query, (address,))  # 確保提供正確的參數
         mysql.connection.commit()
         cur.close()
-        
+
     except Exception as e:
         print(f"Error updating: {e}")
